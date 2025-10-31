@@ -18,9 +18,10 @@ public class ChecklistController {
     private ChecklistRepository checklistRepository;
 
     @GetMapping
-    public List<ChecklistEntity> findAll() {
+    public List<ChecklistDto> findAll() {
         // JPA repos
-        return checklistRepository.findAll();
+        List<ChecklistEntity> entities = checklistRepository.findAll();
+        return entities.stream().map(this::checklistToDto).toList();
     }
 
     @PostMapping
@@ -45,7 +46,13 @@ public class ChecklistController {
 
         ChecklistEntity checklistEntity = new ChecklistEntity();
         checklistEntity.setName(checklistDto.getName());
-        checklistEntity.setItemList(checklistDto.getItemList().stream().map(this::itemDtoToItemEntity).toList());
+        // Проблема была в том, что при маппинге списка DTO в список Entity не устанавливалась
+        // ссылка на родительский checklist, из-за чего при GET запросе не отображался корректный itemList.
+        checklistEntity.setItemList(checklistDto.getItemList().stream().map(itemDto -> {
+            Item item = itemDtoToItemEntity(itemDto);
+            item.setChecklist(checklistEntity);
+            return item;
+        }).toList());
         return checklistEntity;
     }
 

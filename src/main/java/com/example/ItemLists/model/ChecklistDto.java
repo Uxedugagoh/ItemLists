@@ -1,7 +1,5 @@
 package com.example.ItemLists.model;
 
-import com.example.ItemLists.entity.Item;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
